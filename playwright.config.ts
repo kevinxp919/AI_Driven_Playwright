@@ -1,8 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 
 /**
- * Playwright 配置文件
- * 支持多浏览器测试
+ * Playwright Configuration File
+ * Supports multi-browser testing
  */
 export default defineConfig({
   testDir: './tests',
@@ -17,8 +17,6 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: [
     ['html', { outputFolder: 'playwright-report' }],
-    ['json', { outputFile: 'test-results.json' }],
-    ['junit', { outputFile: 'junit-results.xml' }],
     ['line'],
     ['github']
   ],
