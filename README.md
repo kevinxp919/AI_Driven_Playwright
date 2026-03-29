@@ -9,6 +9,7 @@ An intelligent Playwright testing framework with **AI-powered self-healing** cap
 - **AI-Powered Self-Healing** - Automatically fixes broken selectors when tests fail
 - **MCP Integration** - Uses Model Context Protocol for intelligent DOM analysis
 - **Multi-Browser Testing** - Chromium, Firefox, WebKit support
+- **API Automation** - Full REST API testing with JSONPlaceholder
 - **Embedded HTML Reports** - Built-in Playwright HTML reporter with traces
 
 ---
@@ -200,13 +201,17 @@ GitHub Actions workflow is in `.github/workflows/playwright.yml`.
 
 ```
 .
-├── pages/              # Page Object Models
+├── pages/              # Page Object Models (UI)
 │   ├── base.page.ts   # Base class with common methods
 │   ├── login.page.ts
 │   └── ...
-├── tests/              # Test specifications
-│   └── *.spec.ts
-├── utils/              # Utility functions
+├── tests/
+│   ├── *.spec.ts      # E2E UI tests
+│   └── api/           # API tests
+│       ├── posts.spec.ts
+│       └── users.spec.ts
+├── utils/
+│   └── api.utils.ts   # API utilities
 ├── playwright.config.ts
 └── package.json
 ```
@@ -238,6 +243,63 @@ export class LoginPage extends BasePage {
 3. **Self-healing** runs automatically on selector failures
 4. **HTML report** is best for human review
 5. **Traces** are best for deep debugging
+
+---
+
+## API Testing
+
+The framework includes API automation testing using JSONPlaceholder.
+
+### Run API Tests
+
+```bash
+# Run all API tests
+npx playwright test tests/api/
+
+# Run specific API test file
+npx playwright test tests/api/posts.spec.ts
+```
+
+### API Utilities
+
+Use `ApiUtils` for REST API testing:
+
+```typescript
+import { ApiUtils } from './utils/api.utils';
+
+const BASE_URL = 'https://jsonplaceholder.typicode.com';
+
+test('GET /posts', async ({ playwright }) => {
+  const api = new ApiUtils({ baseURL: BASE_URL }, await playwright.request.newContext());
+
+  const response = await api.get('/posts');
+  expect(response.status).toBe(200);
+
+  const posts = response.data;
+  expect(posts).toBeInstanceOf(Array);
+});
+```
+
+### Supported HTTP Methods
+
+- `GET` - Retrieve data
+- `POST` - Create new resource
+- `PUT` - Update complete resource
+- `PATCH` - Partial update
+- `DELETE` - Remove resource
+
+### JSONPlaceholder Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | /posts | Get all posts |
+| GET | /posts/1 | Get post by ID |
+| POST | /posts | Create post |
+| PUT | /posts/1 | Update post |
+| PATCH | /posts/1 | Partial update |
+| DELETE | /posts/1 | Delete post |
+| GET | /users | Get all users |
+| GET | /users/1 | Get user by ID |
 
 ---
 
