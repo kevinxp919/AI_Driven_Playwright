@@ -42,12 +42,6 @@ jobs:
           path: test-results/
           retention-days: 30
 
-      - name: Upload results to GitHub PR
-        uses: github/super-linter@v4
-        continue-on-error: true
-        with:
-          args: 'echo "Review Playwright report artifacts above"'
-
   test-ui:
     timeout-minutes: 60
     runs-on: ubuntu-latest
