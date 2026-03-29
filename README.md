@@ -140,15 +140,6 @@ Test Fails (Selector Timeout)
 [AI Self-Healing] Retrying test... ✓ PASSED
 ```
 
-### Manual Trigger (Optional)
-
-If you need to manually invoke self-healing:
-
-```bash
-# Use MCP tools directly
-npx playwright open --browser chromium https://your-app.com
-```
-
 ---
 
 ## 4. Debug
