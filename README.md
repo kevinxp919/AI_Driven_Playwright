@@ -1,5 +1,7 @@
 # AI-Driven Playwright Automation Framework
 
+**Author:** Kevin Cai | **Email:** kevinxp919@gmail.com
+
 An intelligent Playwright testing framework with **AI-powered self-healing** capabilities. When selectors break, the AI automatically discovers and fixes them.
 
 ## Features
