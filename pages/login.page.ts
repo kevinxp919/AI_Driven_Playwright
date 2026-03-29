@@ -2,11 +2,11 @@ import { Page, Locator, expect } from 'playwright';
 import { BasePage } from './base.page';
 
 /**
- * 登录页面对象
- * 基于 BasePage 类，遵循 Page Object Model 模式
+ * Login Page Object
+ * Extends BasePage following Page Object Model pattern
  */
 export class LoginPage extends BasePage {
-  // 页面元素定位器 - 必须先验证后才能使用
+  // Page element locators - must validate before use
   private readonly _usernameInput: Locator = this.page.locator('#user-name');
   private readonly _passwordInput: Locator = this.page.locator('#password');
   private readonly _loginButton: Locator = this.page.locator('#login-button');
@@ -18,7 +18,7 @@ export class LoginPage extends BasePage {
   }
 
   /**
-   * 验证页面元素是否已加载
+   * Validate page elements are loaded
    */
   async validatePageLoad(): Promise<void> {
     await this.validateElementExists(this._usernameInput);
@@ -27,7 +27,7 @@ export class LoginPage extends BasePage {
   }
 
   /**
-   * 输入用户名
+   * Input username
    */
   async inputUsername(username: string): Promise<void> {
     await this.validateElementReady(this._usernameInput);
@@ -36,7 +36,7 @@ export class LoginPage extends BasePage {
   }
 
   /**
-   * 输入密码
+   * Input password
    */
   async inputPassword(password: string): Promise<void> {
     await this.validateElementReady(this._passwordInput);
@@ -45,7 +45,7 @@ export class LoginPage extends BasePage {
   }
 
   /**
-   * 点击登录按钮
+   * Click login button
    */
   async clickLoginButton(): Promise<void> {
     await this.validateElementReady(this._loginButton);
@@ -53,7 +53,7 @@ export class LoginPage extends BasePage {
   }
 
   /**
-   * 执行登录操作
+   * Perform login operation
    */
   async login(username: string, password: string): Promise<void> {
     await this.inputUsername(username);
@@ -63,7 +63,7 @@ export class LoginPage extends BasePage {
   }
 
   /**
-   * 验证登录成功后是否显示库存列表
+   * Verify login success shows inventory list
    */
   async verifyLoginSuccess(): Promise<boolean> {
     await this.validateElementExists(this._inventoryList, 10000);
@@ -71,7 +71,7 @@ export class LoginPage extends BasePage {
   }
 
   /**
-   * 验证登录失败错误信息
+   * Verify login failure error message
    */
   async verifyLoginFailure(expectedError: string): Promise<boolean> {
     await this.validateElementExists(this._errorMessage, 5000);
@@ -80,7 +80,7 @@ export class LoginPage extends BasePage {
   }
 
   /**
-   * 验证页面标题
+   * Validate page title
    */
   async validatePageTitle(expectedTitle: string): Promise<boolean> {
     const title = await this.getPageTitle();
@@ -88,35 +88,35 @@ export class LoginPage extends BasePage {
   }
 
   /**
-   * 获取用户名输入框定位器（用于测试）
+   * Get username input locator (for testing)
    */
   getUsernameInput(): Locator {
     return this._usernameInput;
   }
 
   /**
-   * 获取密码输入框定位器（用于测试）
+   * Get password input locator (for testing)
    */
   getPasswordInput(): Locator {
     return this._passwordInput;
   }
 
   /**
-   * 获取登录按钮定位器（用于测试）
+   * Get login button locator (for testing)
    */
   getLoginButton(): Locator {
     return this._loginButton;
   }
 
   /**
-   * 获取错误消息定位器（用于测试）
+   * Get error message locator (for testing)
    */
   getErrorMessage(): Locator {
     return this._errorMessage;
   }
 
   /**
-   * 获取库存列表定位器（用于测试）
+   * Get inventory list locator (for testing)
    */
   getInventoryList(): Locator {
     return this._inventoryList;
