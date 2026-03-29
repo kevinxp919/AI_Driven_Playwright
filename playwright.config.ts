@@ -1,8 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 
 /**
- * Playwright 配置文件
- * 支持多浏览器测试
+ * Playwright Configuration File
+ * Supports multi-browser testing
  */
 export default defineConfig({
   testDir: './tests',
