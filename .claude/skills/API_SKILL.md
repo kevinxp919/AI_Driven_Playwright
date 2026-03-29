@@ -359,6 +359,91 @@ After successful test execution, you MUST:
 | GET | /users | Get all users |
 | GET | /users/1 | Get user by ID |
 
+### Pagination Parameters
+
+JSONPlaceholder supports cursor-style pagination:
+
+| Param | Description | Example |
+|-------|-------------|---------|
+| `_page` | Page number | `?_page=1` |
+| `_limit` | Items per page | `?_limit=10` |
+| `_start` | Start index | `?_start=0&_end=10` |
+| `_end` | End index | `?_start=0&_end=10` |
+
+---
+
+## Authentication
+
+When APIs require authentication, configure `ApiUtils` with Bearer tokens:
+
+```typescript
+// With Bearer token
+test.beforeAll(async ({ playwright }) => {
+  const requestContext = await playwright.request.newContext({
+    baseURL: BASE_URL,
+    extraHTTPHeaders: {
+      'Authorization': `Bearer ${process.env.API_TOKEN}`,
+    },
+  });
+  api = new ApiUtils({ baseURL: BASE_URL }, requestContext);
+});
+```
+
+For API keys or custom headers, add them to `extraHTTPHeaders` in `newContext()`.
+
+---
+
+## Query Parameters & Pagination
+
+Use the `params` option for filtering and pagination:
+
+```typescript
+// Pagination with query params
+const response = await api.get('/posts', { _page: '1', _limit: '10' });
+
+// Filter by field
+const response = await api.get('/users', { username: 'Bret' });
+```
+
+JSONPlaceholder supports: `_page`, `_limit`, `start`, `_end` for pagination.
+
+---
+
+## Response Time Assertions
+
+Add performance checks to ensure APIs respond within acceptable thresholds:
+
+```typescript
+test('GET /posts - should respond within 500ms', async () => {
+  const start = Date.now();
+  const response = await api.get('/posts');
+  const duration = Date.now() - start;
+
+  expect(response.status()).toBe(200);
+  expect(duration).toBeLessThan(500);
+});
+```
+
+---
+
+## Request/Response Logging
+
+Log requests and responses for debugging failed tests:
+
+```typescript
+async get<T>(endpoint: string, params?: Record<string, string>): Promise<ApiResponse<T>> {
+  const url = params
+    ? `${this.baseURL}${endpoint}?${new URLSearchParams(params)}`
+    : `${this.baseURL}${endpoint}`;
+
+  console.log(`[API] GET ${url}`);
+  const response = await this.request.get(url, { headers: this.headers });
+  console.log(`[API] Response: ${response.status()}`);
+
+  return this.formatResponse<T>(response);
+}
+```
+
 ---
 
 ## Best Practices
@@ -367,6 +452,9 @@ After successful test execution, you MUST:
 2. **One assertion per test** when possible for clear failure messages
 3. **Validate status first**, then response body
 4. **Use constants** for baseURL and endpoints
-5. **Log all requests** for debugging
+5. **Log all requests** for debugging (see Logging section above)
 6. **Self-heal automatically** before reporting failures
 7. **Generate HTML report** after each test run using Playwright's built-in reporter
+8. **Use query params** for filtering/pagination instead of in-memory filtering
+9. **Add response time assertions** for performance-critical endpoints
+10. **Store tokens in environment variables**, never hardcode credentials
