@@ -1,0 +1,23 @@
+{
+  "name": "playwright",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "npx playwright test",
+    "mcp:single": "node scripts/ai-testing-agent.js --generate-single-test && npx playwright test tests/single-flow.spec.ts --reporter=html",
+    "mcp:single-run": "node scripts/ai-testing-agent.js --run-single-test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.58.2",
+    "@types/node": "^25.5.0",
+    "playwright": "^1.58.2",
+    "typescript": "^6.0.2"
+  }
+}
