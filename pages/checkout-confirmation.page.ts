@@ -2,11 +2,11 @@ import { Page, Locator } from 'playwright';
 import { BasePage } from './base.page';
 
 /**
- * 结算成功页面对象
- * 基于 BasePage 类，遵循 Page Object Model 模式
+ * Checkout Confirmation Page Object
+ * Extends BasePage following Page Object Model pattern
  */
 export class CheckoutConfirmationPage extends BasePage {
-  // 页面元素定位器 - 必须先验证后才能使用
+  // Page element locators - must validate before use
   private readonly _confirmationHeader: Locator = this.page.locator('.complete-header');
   private readonly _continueButton: Locator = this.page.locator('[data-test="back-to-products"]');
   private readonly _confirmationMessage: Locator = this.page.locator('.complete-header');
@@ -16,7 +16,7 @@ export class CheckoutConfirmationPage extends BasePage {
   }
 
   /**
-   * 验证页面加载
+   * Validate page load
    */
   async validatePageLoad(): Promise<void> {
     await this.validateElementExists(this._confirmationHeader);
@@ -25,7 +25,7 @@ export class CheckoutConfirmationPage extends BasePage {
   }
 
   /**
-   * 验证订单成功消息
+   * Validate order success message
    */
   async validateOrderSuccess(): Promise<boolean> {
     await this.validateElementExists(this._confirmationHeader, 5000);
@@ -34,7 +34,7 @@ export class CheckoutConfirmationPage extends BasePage {
   }
 
   /**
-   * 验证特定文本出现在页面上
+   * Validate specific text appears on page
    */
   async validateTextOnPage(expectedText: string): Promise<boolean> {
     const locator = this.page.locator(`text="${expectedText}"`);
@@ -43,7 +43,7 @@ export class CheckoutConfirmationPage extends BasePage {
   }
 
   /**
-   * 点击继续购物按钮
+   * Click continue shopping button
    */
   async clickContinueShopping(): Promise<void> {
     await this.validateElementReady(this._continueButton);
@@ -52,7 +52,7 @@ export class CheckoutConfirmationPage extends BasePage {
   }
 
   /**
-   * 验证订单确认消息可见
+   * Validate confirmation message is visible
    */
   async validateConfirmationMessageVisible(): Promise<boolean> {
     await this.validateElementVisible(this._confirmationMessage);
@@ -60,7 +60,7 @@ export class CheckoutConfirmationPage extends BasePage {
   }
 
   /**
-   * 验证页面标题
+   * Validate page title
    */
   async validatePageTitle(expectedTitle: string): Promise<boolean> {
     const title = await this.getPageTitle();
@@ -68,14 +68,14 @@ export class CheckoutConfirmationPage extends BasePage {
   }
 
   /**
-   * 验证 URL 包含 checkout
+   * Validate URL contains checkout
    */
   async validatePageURL(): Promise<boolean> {
     const url = await this.getCurrentURL();
     return url.includes('checkout');
   }
 
-  // 获取器方法（用于测试）
+  // Getter methods (for testing)
   getConfirmationHeader(): Locator { return this._confirmationHeader; }
   getContinueButton(): Locator { return this._continueButton; }
   getConfirmationMessage(): Locator { return this._confirmationMessage; }

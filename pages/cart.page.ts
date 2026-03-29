@@ -2,11 +2,11 @@ import { Page, Locator } from 'playwright';
 import { BasePage } from './base.page';
 
 /**
- * 购物车页面对象
- * 基于 BasePage 类，遵循 Page Object Model 模式
+ * Cart Page Object
+ * Extends BasePage following Page Object Model pattern
  */
 export class CartPage extends BasePage {
-  // 页面元素定位器 - 必须先验证后才能使用
+  // Page element locators - must validate before use
   private readonly _cartHeader: Locator = this.page.locator('.title');
   private readonly _backButton: Locator = this.page.locator('.backpack_back_link');
   private readonly _cartItemContainer: Locator = this.page.locator('.cart_item');
@@ -23,7 +23,7 @@ export class CartPage extends BasePage {
   }
 
   /**
-   * 验证页面加载
+   * Validate page load
    */
   async validatePageLoad(): Promise<void> {
     await this.validateElementExists(this._cartHeader);
@@ -31,7 +31,7 @@ export class CartPage extends BasePage {
   }
 
   /**
-   * 验证购物车不为空
+   * Validate cart is not empty
    */
   async validateCartNotEmpty(): Promise<boolean> {
     const itemCount = await this._cartItemContainer.count();
@@ -39,27 +39,27 @@ export class CartPage extends BasePage {
   }
 
   /**
-   * 获取购物车商品列表
+   * Get cart items list
    */
   async getCartItems(): Promise<{ name: string; description: string; price: string; quantity: string }[]> {
     const items: { name: string; description: string; price: string; quantity: string }[] = [];
     const count = await this._cartItemContainer.count();
-    
+
     for (let i = 0; i < count; i++) {
       const itemContainer = this._cartItemContainer.nth(i);
       const name = await itemContainer.locator(this._cartItemName).innerText();
       const description = await itemContainer.locator(this._cartItemDescription).innerText();
       const price = await itemContainer.locator(this._cartItemPrice).innerText();
       const quantity = await itemContainer.locator(this._cartItemQuantity).innerText();
-      
+
       items.push({ name, description, price, quantity });
     }
-    
+
     return items;
   }
 
   /**
-   * 验证特定商品在购物车中
+   * Validate specific product is in cart
    */
   async validateProductInCart(productName: string): Promise<boolean> {
     const locator = this.page.locator(`.inventory_item_name:has-text("${productName}")`);
@@ -68,7 +68,7 @@ export class CartPage extends BasePage {
   }
 
   /**
-   * 从购物车移除商品
+   * Remove product from cart
    */
   async removeFromCart(productName: string): Promise<boolean> {
     const productId = productName.toLowerCase().replace(/\s+/g, '-');
@@ -84,7 +84,7 @@ export class CartPage extends BasePage {
   }
 
   /**
-   * 点击结算按钮
+   * Click checkout button
    */
   async clickCheckoutButton(): Promise<void> {
     await this.validateElementReady(this._checkoutButton);
@@ -93,7 +93,7 @@ export class CartPage extends BasePage {
   }
 
   /**
-   * 清空购物车 - 逐个移除所有商品
+   * Clear cart - remove all items one by one
    */
   async clearCart(): Promise<void> {
     const removeButtons = this.page.locator('[data-test^="remove-"]');
@@ -106,42 +106,42 @@ export class CartPage extends BasePage {
   }
 
   /**
-   * 验证特定商品是否被禁用（不可移除）
+   * Validate specific product is disabled (cannot be removed)
    */
   async validateRemoveButtonDisabled(productName: string): Promise<boolean> {
     const locator = this.page.locator(`.inventory_item_name:has-text("${productName}")`);
     await this.validateElementExists(locator);
-    
-    // 获取包含产品名称的 cart_item
+
+    // Get cart_item containing product name
     const itemElement = locator.locator('..');
-    
-    // 移除按钮使用固定选择器
+
+    // Remove button uses fixed selector
     const removeButton = itemElement.locator('[data-test="remove"]');
-    
-    // 验证按钮状态
+
+    // Validate button state
     const isDisabled = await removeButton.count() === 0 || await removeButton.isEnabled() === false;
     return isDisabled;
   }
 
   /**
-   * 验证购物车总价
+   * Get cart total
    */
   async getCartTotal(): Promise<string> {
     const itemCount = await this._cartItemContainer.count();
     if (itemCount === 0) {
       return '0 items';
     }
-    
+
     const totalElement = this.page.locator('.cart_total_label');
     const totalText = await totalElement.innerText();
     return totalText;
   }
 
   /**
-   * 验证页面标题
+   * Validate page title
    */
   async validatePageTitle(expectedTitle: string): Promise<boolean> {
-    // 购物车页面使用 .title 元素验证，因为文档标题都是 "Swag Labs"
+    // Cart page uses .title element for validation
     const titleElement = this.page.locator('.title');
     await this.validateElementExists(titleElement);
     const title = await titleElement.innerText();
@@ -149,18 +149,18 @@ export class CartPage extends BasePage {
   }
 
   /**
-   * 验证商品数量
+   * Validate item quantity
    */
   async validateItemQuantity(productName: string, expectedQuantity: string): Promise<boolean> {
     const locator = this.page.locator(`.inventory_item_name:has-text("${productName}")`);
     await this.validateElementExists(locator);
-    
+
     const itemContainer = locator.locator('..');
     const quantity = await itemContainer.locator(this._cartItemQuantity).innerText();
     return quantity === expectedQuantity;
   }
 
-  // 获取器方法（用于测试）
+  // Getter methods (for testing)
   getCartHeader(): Locator { return this._cartHeader; }
   getBackButton(): Locator { return this._backButton; }
   getCheckoutButton(): Locator { return this._checkoutButton; }
