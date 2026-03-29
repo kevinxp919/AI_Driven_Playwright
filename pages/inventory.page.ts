@@ -2,11 +2,11 @@ import { Page, Locator, expect } from 'playwright';
 import { BasePage } from './base.page';
 
 /**
- * 商品清单页面对象
- * 基于 BasePage 类，遵循 Page Object Model 模式
+ * Inventory Page Object
+ * Extends BasePage following Page Object Model pattern
  */
 export class InventoryPage extends BasePage {
-  // 页面元素定位器 - 必须先验证后才能使用
+  // Page element locators - must validate before use
   private readonly _inventoryContainer: Locator = this.page.locator('.inventory_container');
   private readonly _inventoryList: Locator = this.page.locator('.inventory_list');
   private readonly _inventoryItem: Locator = this.page.locator('.inventory_item');
@@ -17,7 +17,7 @@ export class InventoryPage extends BasePage {
   private readonly _productPrice: Locator = this.page.locator('.inventory_item_price');
   private readonly _cartBadge: Locator = this.page.locator('.shopping_cart_badge');
 
-  // 已知商品名称映射
+  // Known product name mappings
   private readonly _productNames = {
     'Sauce Labs Backpack': '[data-test="item-4"]',
     'Sauce Labs Bike Light': '[data-test="item-5"]',
@@ -31,7 +31,7 @@ export class InventoryPage extends BasePage {
   }
 
   /**
-   * 验证页面加载
+   * Validate page load
    */
   async validatePageLoad(): Promise<void> {
     await this.validateElementExists(this._inventoryContainer);
@@ -40,7 +40,7 @@ export class InventoryPage extends BasePage {
   }
 
   /**
-   * 验证页面 URL
+   * Validate page URL
    */
   async validatePageURL(): Promise<boolean> {
     const url = await this.getCurrentURL();
@@ -48,7 +48,7 @@ export class InventoryPage extends BasePage {
   }
 
   /**
-   * 获取所有商品标题
+   * Get all product titles
    */
   async getProductTitles(): Promise<string[]> {
     const titles: string[] = [];
@@ -61,7 +61,7 @@ export class InventoryPage extends BasePage {
   }
 
   /**
-   * 验证特定商品是否存在
+   * Validate specific product exists
    */
   async validateProductExists(productName: string): Promise<boolean> {
     const locator = this.page.locator(`text="${productName}"`);
@@ -74,22 +74,22 @@ export class InventoryPage extends BasePage {
   }
 
   /**
-   * 添加商品到购物车
+   * Add product to cart
    */
   async addToCart(productName: string): Promise<boolean> {
-    // 获取产品名称的格式化版本（例如："Sauce Labs Backpack" -> "sauce-labs-backpack"）
+    // Get formatted product name (e.g., "Sauce Labs Backpack" -> "sauce-labs-backpack")
     const formattedName = productName.toLowerCase().replace(/\s+/g, '-');
-    
-    // 查找对应的加入购物车按钮（使用动态选择器）
+
+    // Find corresponding add-to-cart button (using dynamic selector)
     const addButton = this.page.locator(`[data-test="add-to-cart-${formattedName}"]`);
     await this.validateElementReady(addButton);
     await addButton.click();
-    
+
     return true;
   }
 
   /**
-   * 验证购物车按钮存在
+   * Validate cart button exists
    */
   async validateCartButtonExists(): Promise<boolean> {
     try {
@@ -101,7 +101,7 @@ export class InventoryPage extends BasePage {
   }
 
   /**
-   * 点击购物车按钮
+   * Click cart button
    */
   async clickCartButton(): Promise<void> {
     await this.validateElementReady(this._cartButton);
@@ -110,7 +110,7 @@ export class InventoryPage extends BasePage {
   }
 
   /**
-   * 验证商品数量
+   * Validate product count
    */
   async validateProductCount(expectedCount: number): Promise<boolean> {
     const count = await this._productTitle.count();
@@ -118,14 +118,14 @@ export class InventoryPage extends BasePage {
   }
 
   /**
-   * 获取商品总数
+   * Get total product count
    */
   async getProductCount(): Promise<number> {
     return await this._productTitle.count();
   }
 
   /**
-   * 获取购物车徽章数量
+   * Get cart badge count
    */
   async getCartBadgeCount(): Promise<number> {
     const badgeCount = await this._cartBadge.count();
@@ -137,7 +137,7 @@ export class InventoryPage extends BasePage {
   }
 
   /**
-   * 对产品进行排序
+   * Sort products
    */
   async sortProducts(sortOption: string): Promise<void> {
     await this.validateElementReady(this._sortByDropdown);
@@ -146,14 +146,14 @@ export class InventoryPage extends BasePage {
   }
 
   /**
-   * 验证页面标题
+   * Validate page title
    */
   async validatePageTitle(expectedTitle: string): Promise<boolean> {
     const title = await this.getPageTitle();
     return title.includes(expectedTitle);
   }
 
-  // 获取器方法（用于测试）
+  // Getter methods (for testing)
   getInventoryContainer(): Locator { return this._inventoryContainer; }
   getInventoryList(): Locator { return this._inventoryList; }
   getInventoryItem(index: number): Locator { return this._inventoryItem.nth(index); }

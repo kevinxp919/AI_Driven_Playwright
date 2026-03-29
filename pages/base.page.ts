@@ -1,8 +1,8 @@
 import { Page, Locator, expect } from 'playwright';
 
 /**
- * 基础页面类 - 所有页面对象的基类
- * 提供通用的页面操作方法和验证功能
+ * Base Page Class - Base class for all page objects
+ * Provides common page operations and validation methods
  */
 export class BasePage {
   protected readonly page: Page;
@@ -12,37 +12,37 @@ export class BasePage {
   }
 
   /**
-   * 导航到指定 URL
+   * Navigate to specified URL
    */
   async navigate(url: string): Promise<void> {
     await this.page.goto(url);
   }
 
   /**
-   * 验证元素是否存在（必须验证后才能使用）
+   * Validate element exists (must validate before use)
    */
   async validateElementExists(locator: Locator, timeout: number = 5000): Promise<void> {
     try {
-      // 使用原生 Playwright 方法等待元素可见
+      // Use native Playwright method to wait for element visibility
       await locator.waitFor({ state: 'visible', timeout });
     } catch (error) {
-      throw new Error(`元素验证失败：${locator.toString()} - ${error}`);
+      throw new Error(`Element validation failed: ${locator.toString()} - ${error}`);
     }
   }
 
   /**
-   * 等待元素加载
+   * Wait for element to load
    */
   async waitForElement(locator: Locator, timeout: number = 5000): Promise<void> {
     try {
       await locator.waitFor({ state: 'visible', timeout });
     } catch (error) {
-      throw new Error(`元素加载超时：${locator.toString()} - ${error}`);
+      throw new Error(`Element load timeout: ${locator.toString()} - ${error}`);
     }
   }
 
   /**
-   * 验证元素是否已就绪（可交互状态）
+   * Validate element is ready (interactive state)
    */
   async validateElementReady(locator: Locator): Promise<void> {
     await locator.waitFor({ state: 'attached', timeout: 5000 });
@@ -50,32 +50,32 @@ export class BasePage {
   }
 
   /**
-   * 验证元素是否可见
+   * Validate element is visible
    */
   async validateElementVisible(locator: Locator, timeout: number = 5000): Promise<void> {
     try {
       await locator.waitFor({ state: 'visible', timeout });
     } catch (error) {
-      throw new Error(`元素可见性验证失败：${locator.toString()} - ${error}`);
+      throw new Error(`Element visibility validation failed: ${locator.toString()} - ${error}`);
     }
   }
 
   /**
-   * 获取页面标题
+   * Get page title
    */
   async getPageTitle(): Promise<string> {
     return await this.page.title();
   }
 
   /**
-   * 获取当前 URL
+   * Get current URL
    */
   async getCurrentURL(): Promise<string> {
     return this.page.url();
   }
 
   /**
-   * 等待页面完全加载
+   * Wait for page to fully load
    */
   async waitForLoadState(state: 'load' | 'domcontentloaded' | 'networkidle' = 'load'): Promise<void> {
     await this.page.waitForLoadState(state);
