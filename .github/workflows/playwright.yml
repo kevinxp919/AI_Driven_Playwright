@@ -5,9 +5,49 @@ on:
     branches: [main, master]
   pull_request:
     branches: [main, master]
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to run tests'
+        required: true
+        default: 'main'
+      test_type:
+        description: 'Test type to run'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - api
+          - ui
 
 jobs:
-  test:
+  test-api:
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run API tests
+        run: npx playwright test --config=playwright.api.config.ts
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-api
+          path: playwright-report-api/
+          retention-days: 30
+
+  test-ui:
     timeout-minutes: 60
     runs-on: ubuntu-latest
 
@@ -25,8 +65,8 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      - name: Run Playwright tests
-        run: npx playwright test
+      - name: Run UI tests
+        run: npx playwright test --config=playwright.ui.config.ts
 
       - uses: actions/upload-artifact@v4
         if: always()
@@ -42,7 +82,33 @@ jobs:
           path: test-results/
           retention-days: 30
 
-  test-ui:
+  test-pr-api:
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run API tests
+        run: npx playwright test --config=playwright.api.config.ts
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-pr-api
+          path: playwright-report-api/
+          retention-days: 30
+
+  test-pr-ui:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
@@ -61,6 +127,19 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      - name: Run tests with UI
-        run: npx playwright test --ui
-        continue-on-error: true
+      - name: Run UI tests
+        run: npx playwright test --config=playwright.ui.config.ts
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-pr-ui
+          path: playwright-report/
+          retention-days: 30
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-traces-pr
+          path: test-results/
+          retention-days: 30
