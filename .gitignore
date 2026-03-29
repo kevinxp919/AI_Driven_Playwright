@@ -3,6 +3,7 @@ node_modules/
 
 # Playwright
 /playwright-report/
+/playwright-report-api/
 /test-results/
 /test-reports/
 /test-results.json
@@ -30,6 +31,3 @@ Thumbs.db
 
 # Documentation (auto-generated reports/docs)
 /docs/
-playwright-report-api/index.html
-playwright-report-api/index.html
-playwright-report-api/index.html
