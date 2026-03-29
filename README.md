@@ -1,13 +1,13 @@
 # AI-Driven Playwright Automation Framework
 
-An intelligent Playwright testing framework with MCP-powered self-healing capabilities.
+An intelligent Playwright testing framework with **AI-powered self-healing** capabilities. When selectors break, the AI automatically discovers and fixes them.
 
 ## Features
 
-- **AI-Powered Test Generation** - Generate tests using MCP tools with page object reuse patterns
-- **Self-Healing** - Automatically修复破碎的选择器 when tests fail
+- **AI-Powered Self-Healing** - Automatically fixes broken selectors when tests fail
+- **MCP Integration** - Uses Model Context Protocol for intelligent DOM analysis
 - **Multi-Browser Testing** - Chromium, Firefox, WebKit support
-- **Embedded Reports** - Playwright's built-in HTML, JSON, JUnit reporters
+- **Embedded HTML Reports** - Built-in Playwright HTML reporter with traces
 
 ---
 
@@ -30,15 +30,23 @@ npx playwright install
 
 ### Configuration
 
-Edit `playwright.config.ts` to customize:
+Edit `playwright.config.ts`:
 
 ```typescript
 export default defineConfig({
-  testDir: './tests',        // Test files location
+  testDir: './tests',
   baseURL: 'https://your-app.com',
-  timeout: 30000,           // Test timeout
-  retries: 0,               // Retry on CI
-  workers: undefined,       // Parallel workers
+  timeout: 30000,
+  retries: 0,
+  reporter: [
+    ['html', { outputFolder: 'playwright-report' }],
+    ['line'],
+  ],
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
+    { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+  ],
 });
 ```
 
@@ -66,12 +74,6 @@ npx playwright test --project=webkit
 npx playwright test tests/login.spec.ts
 ```
 
-### Run Tests with Tags
-
-```bash
-npx playwright test --grep="@smoke"
-```
-
 ### Run Tests in UI Mode
 
 ```bash
@@ -80,89 +82,78 @@ npx playwright test --ui
 
 ---
 
-## 3. Debug
+## 3. AI Self-Healing
 
-### Debug in Browser
-
-```bash
-npx playwright test --project=chromium --debug
-```
-
-### Debug with Trace Viewer
-
-Failed tests automatically save traces. View them:
-
-```bash
-npx playwright show-trace test-results/<trace-id>
-```
-
-### Debug Specific Test
-
-```typescript
-test('debug me', async ({ page }) => {
-  await page.goto('/');
-  // Add debug points
-  await page.pause();  // Pause for inspection
-});
-```
-
-### Check Selectors
-
-```bash
-# Open Playwright Inspector
-npx playwright inspect
-```
-
-### View Console Logs
-
-```bash
-# Capture browser console output
-npx playwright test --project=chromium 2>&1 | grep -i console
-```
-
----
-
-## 4. Self-Healing
-
-When a selector fails, the framework automatically:
+When a test fails due to a broken selector, the AI automatically:
 
 1. **Detects** the failure (element not found / timeout)
-2. **Analyzes** the DOM using MCP browser snapshot
-3. **Generates** a new stable selector
-4. **Updates** the page object and retries
-5. **Documents** the healing action
+2. **Analyzes** the DOM using MCP browser snapshot (headless)
+3. **Discovers** alternative selectors (CSS, XPath, data-testid, text)
+4. **Selects** the most stable selector
+5. **Updates** the page object automatically
+6. **Retries** the test with the new selector
 
-### Manual Self-Healing
+### Self-Healing Flow
 
-If you encounter a broken selector:
-
-```bash
-# Use MCP to analyze and heal
-# 1. Navigate to the page
-# 2. Get browser snapshot
-# 3. Identify new selector
-# 4. Update the page object
+```
+Test Fails (Selector Timeout)
+        │
+        ▼
+┌───────────────────┐
+│ MCP browser_      │
+│ snapshot (DOM)    │
+└───────────────────┘
+        │
+        ▼
+┌───────────────────┐
+│ AI Analyzes       │
+│ Available Elements│
+└───────────────────┘
+        │
+        ▼
+┌───────────────────┐
+│ AI Selects Best   │
+│ Alternative       │
+│ Selector          │
+└───────────────────┘
+        │
+        ▼
+┌───────────────────┐
+│ Updates Page Obj  │
+│ Retries Test     │
+└───────────────────┘
 ```
 
 ### Healed Selector Logging
 
-Healed selectors are logged in test output:
-
 ```
-[Self-Healing] Selector updated: .old-button → [data-testid="submit-btn"]
-[Self-Healing] Test passed after healing
+[AI Self-Healing] Detected: element "#old-button" not found
+[AI Self-Healing] Analyzing DOM for alternatives...
+[AI Self-Healing] Found 3 candidate selectors:
+  - [data-testid="submit-btn"] (preferred)
+  - button[type="submit"]
+  - text("Submit")
+[AI Self-Healing] Selected: [data-testid="submit-btn"]
+[AI Self-Healing] Updated: pages/login.page.ts
+[AI Self-Healing] Retrying test... ✓ PASSED
+```
+
+### Manual Trigger (Optional)
+
+If you need to manually invoke self-healing:
+
+```bash
+# Use MCP tools directly
+npx playwright open --browser chromium https://your-app.com
 ```
 
 ---
 
-## 5. Generate Reports
+## 4. Debug
 
-Playwright embeds multiple reporters for different outputs.
-
-### HTML Report (Recommended)
+### View HTML Report
 
 ```bash
-# Generate and open HTML report
 npx playwright show-report
 ```
 
@@ -170,36 +161,45 @@ The HTML report includes:
 - Test results summary
 - Failure details with screenshots
 - Trace viewer links
-- Retry information
+- Self-healing action logs
 
-### JSON Report
+### Debug with Trace Viewer
 
-```bash
-# JSON output (configured in playwright.config.ts)
-npx playwright test --reporter=json
-```
-
-Output: `playwright-report/test-results.json`
-
-### JUnit XML Report
+Failed tests save traces automatically. View traces:
 
 ```bash
-# JUnit XML for CI integration
-npx playwright test --reporter=junit
+npx playwright show-trace test-results/<trace-id>
 ```
 
-Output: `playwright-report/junit-results.xml`
-
-### Merge Reports (CI)
+### Debug in Browser
 
 ```bash
-# Merge blob reports from parallel workers
-npx playwright merge-reports playwright-report/
+npx playwright test --project=chromium --debug
 ```
 
-### GitHub Actions Integration
+### Check Browser Console
 
-Reports are automatically posted to GitHub PR comments when using `@playwright/test` reporter.
+```bash
+npx playwright test --project=chromium 2>&1 | grep -i console
+```
+
+---
+
+## 5. CI/CD
+
+GitHub Actions workflow is in `.github/workflows/playwright.yml`.
+
+### What Gets Uploaded
+
+- `playwright-report/` - HTML report (downloadable from Actions tab)
+- `test-results/` - Trace files for debugging
+
+### Viewing CI Reports
+
+1. Go to **Actions** tab in your GitHub repo
+2. Select the workflow run
+3. Download **playwright-report** artifact
+4. Open `index.html` locally
 
 ---
 
@@ -238,27 +238,18 @@ export class LoginPage extends BasePage {
 
 ---
 
-## CI/CD Integration
+## Best Practices
 
-### GitHub Actions
-
-```yaml
-- name: Run Tests
-  run: npx playwright test
-
-- name: Upload Report
-  if: always()
-  uses: actions/upload-artifact@v4
-  with:
-    name: playwright-report
-    path: playwright-report/
-```
+1. **Use `data-testid`** attributes for stable selectors
+2. **Enable trace** on first retry: `trace: 'on-first-retry'`
+3. **Self-healing** runs automatically on selector failures
+4. **HTML report** is best for human review
+5. **Traces** are best for deep debugging
 
 ---
 
 ## Tips
 
-- **Use `data-testid`** attributes for stable selectors
-- **Enable trace** on first retry for debugging (`trace: 'on-first-retry'`)
-- **Self-healing** runs automatically on selector failures
-- **HTML report** is the best for human review
+- Tests run in parallel by default
+- Set `retries: 2` in CI for flaky tests
+- Use `baseURL` in config for easy environment switching
